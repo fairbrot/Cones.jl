@@ -13,6 +13,24 @@ function redundant_constraint_check{T<:Real}(mat::ChernMat{T}, k::Int, verbosity
     return red_rows
 end
 
+@doc """
+# Description
+Calculates the finite generators of the following cone:
+
+   {x: Ax >= 0}
+
+This is solved by the generalised Chernikova algorithm:
+"A note on Chernikova's Algorithm" by Le Verge (1994)
+
+# Arguments
+* `A::Matrix{Integer}`: Matrix of cone constraints (each column defines a constraint)
+* `verbosity`: level of information printed to standard output
+
+# Returns
+* `birays::Matrix{Integer}`: a matrix whose columns are the bidirectional cone generators
+* `unirays::Matrix{Integer}`: a matrix whose columns are the unidirectional cone generators
+* `redundent_rows::IntSet`: indices of rows in input matrix which are redundent
+""" ->
 function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     # Initialisation
     m, n = size(A)

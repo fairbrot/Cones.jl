@@ -137,20 +137,27 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
     end
 end
 
+@doc """
+# Description
+Calculates the finite generators of the cone formed
+by the intersection of a polyhedral cone and the positive quadrant;
+that is the cone formed by the solutions
+of the following problem:
 
-# Main algorithm
-# Calculates the finite generators of the cone formed
-# by the intersection of a polyhedral cone and the positive
-# quadrant; that is the cone formed by the positive solutions
-# of the following problem:
-#    Ax >= 0
-#
-#
-# This is solved by Chernikova's algorithm:
-# "Algorithm for finding a general formula for the non-negative
-# solutions of linear inequalities" by N.V. Chernikova (1964)
-#
-# Returns a matrix whose columns are the required cone generators
+   Ax >= 0
+    x >= 0
+
+This is solved by Chernikova's algorithm:
+"Algorithm for finding a general formula for the non-negative solutions of linear inequalities"
+by N.V. Chernikova (1964)
+
+# Arguments
+* `A::Matrix{Integer}`: Matrix of cone constraints (each column defines a constraint)
+* `verbosity`: level of information printed to standard output
+
+# Returns
+* `rays::Matrix{Integer}`: a matrix whose columns are the required cone generators
+""" ->
 function chernikova{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     mat = ChernMat(A)
     chernikova(mat, verbosity)
