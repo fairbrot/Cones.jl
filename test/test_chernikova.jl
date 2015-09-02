@@ -1,57 +1,63 @@
 using Distributions
 
+# Test our implementation of Chernikova's algorithm
+# gives same results as in the paper
+
+# Checks output from chernikova function an input matrix
+# defines a specified finitely generated cone. That is,
+# { x: Ax ≥ 0 } == { B y : y ≥ 0 }
+#
+# Arguments:
+# A::Matrix - constraint matrix (rows correspond to individual constraints)
+# B::Matrix - matrix of cones rays (columns correspond to individual rays)
+function test_chernikova{T1<:Union(Integer, Rational), T2<:Integer}(A::Matrix{T1}, B::Matrix{T2})
+    rays = cones.norm_cols(B)
+    chern_rays = chernikova(A)
+    @test cones.check_columns_same(rays, chern_rays)
+end
+
+# Simple two rays example
+println("\tExample 1...")
+A = [[-1//5 4//5],
+     [4//5 -1//5]]
+B = [[1,4] [4, 1]]
+test_chernikova(A,B)
+
+
+# Redundant constraints
+println("\tExample 2...")
+A = [[1 1 0],
+     [1 0 1],
+     [1 1 1],
+     [1 1 1],
+     [0 1 1]]
+B = eye(Int, 3)
+test_chernikova(A,B)
+
+# Empty set example
+println("\tExample 3...")
+A = [[-1 -1 -1]]
+B = Array(Int, 3, 0)
+test_chernikova(A, B)
+
+
+# One ray example
+println("\tExample 4...")
+A = [[1 -1], [-1 1]]
+B = [1 1]'
+chernikova(A, 3)
+test_chernikova(A, B)
+
+
+# Example from paper
+# "Algorithm for finding a general formula for the non-negative solutions of a system of linear inequalities"
+# by Chernikova (1964)
+println("\tExample 5...")
 A = [[3 -4 1 0],
      [2 0 4 -1],
      [-4 -7 2 4],
      [-1 0 20 2],
      [6 -5 -4 2]]
-B = [A, eye(Int, size(A,2))]
 
-## C = EllipticalScenGen.remove_redundant_constraints(B)
-## chernikova_general(C)
-## chernikova_general(D)
-
-## m, n = size(B)
-## S = [[eye(eltype(B), n) B'], [-eye(eltype(B), n) -B']]
-## ChernMat = EllipticalScenGen.ChernMat
-## mat = ChernMat(S, m, n, 2*n)
-## chernikova(mat, 1)
-
-## using EllipticalScenGen
-## q = ones(6)
-## K = quota_cone(q)
-## A = int(K.A)
-## chernikova_general(A, 2)
-
-# Function which checks anything generated from Chernikova output is in Polyhedral cone
-function test_polyhedral_contains_finite_cone(A::Matrix{Int}, num_points::Int)
-    X = chernikova(A)
-    dim, gens = size(X)
-    dist = Uniform(0.0, 100.0)
-    B = [A; eye(Int,dim)]
-    for i in 1:num_points
-        λ = rand(dist, gens)
-        @test all(B*(X*λ) .>= 0.0)
-    end
-end
-
-# Function which checks that the polyhedral cone (intersected with the positive quadrant)
-# is contained in the finitely generated cone output by the Chernikova function.
-# This test is done by checking that the dual of the latter is contained in
-# the dual of the former.
-function test_finite_contains_polyhedral_cone(A::Matrix{Int}, num_points::Int)
-    dim = size(A, 2)
-    B = [A; eye(Int, dim)]  # Must add positivity constaints to original polyhedral cone
-    dual_gens= size(B,1)
-    X = chernikova(B)
-    dist = Uniform(0.0, 100.0)
-    for i in 1:num_points
-        λ = rand(dist, dual_gens)
-        @test all(X'B'λ .>= 0)
-    end
-end
-    
-test_polyhedral_contains_finite_cone(A, 10000)
-test_finite_contains_polyhedral_cone(A, 10000)
-test_polyhedral_contains_finite_cone(B, 10000)
-test_finite_contains_polyhedral_cone(B, 10000)
+B = [[1, 0, 0, 2] [0, 0, 1, 4] [0, 1, 4, 16] [0, 0, 2, 4]  [0, 32, 128, 336] [6, 0, 0, 6] [21, 12, 0, 42] [52, 40, 4, 120] [20, 0, 32, 4] [24080, 25760, 30800, 53760]]
+test_chernikova(A, B)

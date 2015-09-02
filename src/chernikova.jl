@@ -1,19 +1,3 @@
-function collinear(a::Array{Int}, b::Array{Int})
-    length(a) == length(b) || error("Input arrays must have the same dimenisions")
-    a_n, b_n = a/gcd(a), b/gcd(b)
-    if a_n==b_n || a_n==-b_n; return true; end
-    return false
-end
-
-# Normalises the columns of a matrix
-function norm_cols(A::Matrix{Int})
-    norm_A = copy(A)
-    for i in 1:size(A,2)
-        if (g = gcd(A[:,i])) > 1; norm_A[:, i] = broadcast(div, norm_A[:, i], g); end
-    end
-    return norm_A
-end
-
 type ChernMat{T<:Integer}
     B::Matrix{T}
     m::Int64     # Number of constraints
@@ -79,15 +63,15 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
             return norm_cols(LHS(mat)')
         elseif p == mat.rows
             if verbosity > 0; println("Zero is the unique solution"); end;
-            return zeros(n)
+            return Array(T, mat.n, 0)
         end
         
         # Inspect matrix to find the maximum size of the next
-        #if verbosity > 0; println("Using column $(col) which has $(p) negatives"); end;
+        # if verbosity > 0; println("Using column $(col) which has $(p) negatives"); end;
         pos, nil, neg = get_pos_neg_indices(mat, col)
         
         if verbosity > 0
-            println("Adding constraint $(col) which is currently violated by $(length(neg)) of $(mat.rows) extremal rays")
+            println("Adding constraint $(col-mat.n) (column $(col)) which is currently violated by $(length(neg)) of $(mat.rows) extremal rays")
             println("New basis will consist of a maximum of $(mat.rows) - $(length(neg)) + $(length(pos)) * $(length(neg)) = $(mat.rows - length(neg) + length(pos)*length(neg)) extremal rays")
         end;
         
@@ -96,8 +80,8 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
 
 
         # Handle case of two rows separately
-        if mat.rows == 2
-            if verbosity > 0; println("Handling two row case..."); end;
+        if mat.rows == 2 && max_rows == 2
+            if verbosity > 0; println("Handling special two row case..."); end;
             new_B[1,:] = mat.B[pos[1],:]
             new_row = combine(mat.B, col, pos[1], neg[1])
             if verbosity > 1; println("Candidate row: ", new_row); end;
@@ -109,6 +93,7 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
                 mat.rows = 1
                 mat.B = new_B[1,:]
             end
+            counter += 1
             continue
         end
                 
@@ -162,10 +147,10 @@ function chernikova{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     mat = ChernMat(A)
     chernikova(mat, verbosity)
 end
-
+    
 function chernikova{T<:Rational}(A::Matrix{T}, verbosity::Int = 0)
     C = intmat(A)
-    chernikova(C, vebosity)
+    chernikova(C, verbosity)
 end
 
 function leading_col{T<:Integer}(mat::ChernMat{T})
