@@ -168,6 +168,11 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     return norm_cols(LHS(bidray)'), norm_cols(LHS(uniray)'), redundant_rows
 end
 
+function chernikova_general{T<:Rational}(A::Matrix{T}, verbosity::Int = 0)
+    Aint = intmat(A)
+    chernikova_general(Aint, verbosity)
+end
+
 function remove_redundant_constraints{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     m,n = size(A)
     uni, bid, red_cons = chernikova_general(A)
