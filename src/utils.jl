@@ -17,7 +17,7 @@ end
 function norm_cols(A::Matrix{Int})
     norm_A = copy(A)
     for i in 1:size(A,2)
-        if (g = gcd(A[:,i])) > 1; norm_A[:, i] = broadcast(div, norm_A[:, i], g); end
+        if (g = gcd(A[:,i])) > 1; norm_A[:, i] = div(norm_A[:, i], g); end
     end
     return norm_A
 end
@@ -42,4 +42,42 @@ function check_column_span_same{T<:Real}(A::Matrix{T}, B::Matrix{T})
     if size(B) != (m,n) return false end
     rankA = rank(A)
     return rank(A) == rank([A B])
+end
+
+# Tests whether all elements of vector are zero
+function is_zero{T<:Real}(x::Vector{T})
+    z = zero(T)
+    for xi in x
+        if xi != z return false end
+    end
+    return true
+end
+
+# Verify columns of input matrix are orthogonal (no zero columns allowed)
+function check_columns_orthogonal{T<:Real}(A::Matrix{T})
+    m, n = size(A)
+    for i in 1:n
+        if is_zero(A[:,i]) return false end
+        for j in 1:(i-1)
+            if dot(A[:,i], A[:,j]) != zero(T) return false end
+        end
+    end        
+    return true
+end
+
+# Use a modified version of Gram-Schmitd to orthonalize columns of integer matrix
+function gram_schmidt{T<:Integer}(A::Matrix{T})
+    m, n = size(A)
+    B = Array(T, m, n)
+    B[:,1] = div(A[:,1],gcd(A[:,1]))
+    for i in 2:n
+        sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:(i-1)]
+        prod_sq_norms = prod(sq_norms)
+        B[:,i] = prod_sq_norms * A[:,i]
+        for j in 1:(i-1)
+            B[:,i] -= (prod_sq_norms/sq_norms[j]) * dot(A[:,i], B[:,j]) * B[:,j]
+        end
+        if (g = gcd(B[:,i])) > 1; B[:, i] = div(B[:, i], g); end
+    end
+    return B
 end
