@@ -75,9 +75,30 @@ function gram_schmidt{T<:Integer}(A::Matrix{T})
         prod_sq_norms = prod(sq_norms)
         B[:,i] = prod_sq_norms * A[:,i]
         for j in 1:(i-1)
-            B[:,i] -= (prod_sq_norms/sq_norms[j]) * dot(A[:,i], B[:,j]) * B[:,j]
+            B[:,i] -= div(prod_sq_norms,sq_norms[j]) * dot(A[:,i], B[:,j]) * B[:,j]
         end
         if (g = gcd(B[:,i])) > 1; B[:, i] = div(B[:, i], g); end
     end
     return B
+end
+
+# Transforms rays so that they are orthogonal to all elements in a linear subspace
+# Arguments:
+# `A::Matrix{T}`: matrix of rays (each column is a ray)
+# `B::Matrix{T}`: matrix whose columns form a basis of linear subspace
+function normalise_rays{T<:Integer}(A::Matrix{T}, B::Matrix{T})
+    m, n = size(A)
+    k = size(B,2) # Size of basis
+    new_rays = Array(T, m, n)
+    B = gram_schmidt(B) # must have orthogonal basis for linear subspace
+    sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:k]
+    prod_sq_norms = prod(sq_norms)
+    for i in 1:n
+        new_rays[:,i] = prod_sq_norms * A[:,i]
+        for j in 1:k
+            new_rays[:,i] -= div(prod_sq_norms,sq_norms[j]) * dot(A[:,i], B[:,j]) * B[:,j]
+            if (g = gcd(new_rays[:,i])) > 1; new_rays[:, i] = div(new_rays[:, i], g); end
+        end
+    end
+    return new_rays
 end
