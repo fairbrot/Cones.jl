@@ -1,17 +1,18 @@
-function redundant_constraint_check{T<:Real}(mat::ChernMat{T}, k::Int, verbosity::Int = 0)
-    zeros = find(x->x==0, mat.B[:, k+mat.n])
-    red_rows = IntSet()
-    for i in 1:k-1
-        zs = find(x->x==0, mat.B[:, i+mat.n])
-        if issubset(zs, zeros) && length(setdiff(zeros, zs)) > 0
-            push!(red_rows, i)
-        elseif issubset(zeros, zs) && length(setdiff(zs, zeros))
-            push!(red_rows, k)
-            break
-        end
-    end
-    return red_rows
-end
+# DOESN'T ALWAYS WORK
+## function redundant_constraint_check{T<:Real}(mat::ChernMat{T}, k::Int, verbosity::Int = 0)
+##     zeros = find(x->x==0, mat.B[:, k+mat.n])
+##     red_rows = IntSet()
+##     for i in 1:k-1
+##         zs = find(x->x==0, mat.B[:, i+mat.n])
+##         if issubset(zs, zeros) && length(setdiff(zeros, zs)) > 0
+##             push!(red_rows, i)
+##         elseif issubset(zeros, zs) && length(setdiff(zs, zeros)) > 0
+##             push!(red_rows, k)
+##             break
+##         end
+##     end
+##     return red_rows
+## end
 
 @doc """
 # Description
@@ -29,7 +30,7 @@ This is solved by the generalised Chernikova algorithm:
 # Returns
 * `birays::Matrix{Integer}`: a matrix whose columns are the bidirectional cone generators
 * `unirays::Matrix{Integer}`: a matrix whose columns are the unidirectional cone generators
-* `redundent_rows::IntSet`: indices of rows in input matrix which are redundent
+* `redundant_cons::IntSet`: indices of constraints (rows) in input matrix which are redundant
 """ ->
 function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     # Initialisation
@@ -37,7 +38,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     bidray = ChernMat(A)
     uniray = ChernMat(Array(T, 0, m+n), m, n, 0)
 
-    redundant_rows=IntSet()
+    #redundant_cons=IntSet()
     
     for k in 1:m
         if verbosity > 0
@@ -96,17 +97,17 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
                 if verbosity > 0
                     println("Constraint $k is violated by no bidirectional or unidirectional rays so is redundant")
                 end
-                push!(redundant_rows, k)
+                #push!(redundant_cons, k)
                 continue
             end
 
-            if length(pos) + length(nil) == 0
-                if verbosity > 0
-                    println("Constraint $k violates all bidirectional and unidirectional rays so Cone is zero set")
-                end
-                return zeros(n)
-            end
-            
+            ## if length(pos) + length(nil) == 0
+            ##     if verbosity > 0
+            ##         println("Constraint $k violates all bidirectional and unidirectional rays so Cone is zero set")
+            ##     end
+            ##     return Array(T, n, 0)
+            ## end
+
             if verbosity > 0
                 println("Adding constraint $(k) which is currently violated by $(length(neg)) of $(uniray.rows) extremal rays")
                 println("New unidirectional basis will consist of a maximum of $(uniray.rows) - $(length(neg)) + $(length(pos)) * $(length(neg)) = $(uniray.rows - length(neg) + length(pos)*length(neg)) extremal rays")
@@ -155,7 +156,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
                 println("------------------------------------------------")
             end
         end
-        union!(redundant_rows, redundant_constraint_check(uniray,k, verbosity))
+        #union!(redundant_cons, redundant_constraint_check(uniray,k, verbosity))
     end
     if verbosity > 0
         println("Result")
@@ -165,7 +166,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
         println("Unidirectional rays")
         pprint(uniray)
     end
-    return norm_cols(LHS(bidray)'), norm_cols(LHS(uniray)'), redundant_rows
+    return norm_cols(LHS(bidray)'), norm_cols(LHS(uniray)')#, redundant_cons
 end
 
 function chernikova_general{T<:Rational}(A::Matrix{T}, verbosity::Int = 0)
