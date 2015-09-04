@@ -69,8 +69,7 @@ end
 function gram_schmidt{T<:Integer}(A::Matrix{T})
     m, n = size(A)
     B = Array(T, m, n)
-    B[:,1] = div(A[:,1],gcd(A[:,1]))
-    for i in 2:n
+    for i in 1:n
         sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:(i-1)]
         prod_sq_norms = prod(sq_norms)
         B[:,i] = prod_sq_norms * A[:,i]
