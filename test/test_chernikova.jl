@@ -1,9 +1,6 @@
 using Distributions
 
-# Test our implementation of Chernikova's algorithm
-# gives same results as in the paper
-
-# Checks output from chernikova function an input matrix
+# Checks output from chernikova function for some input matrix
 # defines a specified finitely generated cone. That is,
 # { x: Ax ≥ 0 } == { B y : y ≥ 0 }
 #
@@ -45,7 +42,6 @@ test_chernikova(A, B)
 println("\tExample 4...")
 A = [[1 -1], [-1 1]]
 B = [1 1]'
-chernikova(A, 3)
 test_chernikova(A, B)
 
 
