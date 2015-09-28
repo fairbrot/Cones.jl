@@ -15,3 +15,6 @@ include("test_chernikova_general.jl")
 
 println("Running test_PolyhedralCone.jl...")
 include("test_PolyhedralCone.jl")
+
+println("Running test_polytope.jl...")
+include("test_polytope.jl")
