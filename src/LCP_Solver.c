@@ -450,10 +450,10 @@ int lcp_compute_error(LinearComplementarityProblem* problem, double *z , double 
 
 int linearComplementarity_lexicolemke_setDefaultSolverOptions(SolverOptions* options)
 {
-  if (options->verboseMode > 0)
-  {
-    printf("Set the Default SolverOptions for the Lemke Solver\n");
-  }
+  /* if (options->verboseMode > 0) */
+  /* { */
+  /*   printf("Set the Default SolverOptions for the Lemke Solver\n"); */
+  /* } */
 
   options->isSet = 1;
   options->filterOn = 1;
