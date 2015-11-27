@@ -136,7 +136,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
             
             # Add rows with non-negative intersections
             # with leading column to next matrix
-            for (l,i) in enumerate([pos,nil]); new_B[l,:] = uniray.B[i,:]; end;
+            for (l,i) in enumerate([pos;nil]); new_B[l,:] = uniray.B[i,:]; end;
             new_rows = length(pos) + length(nil)
 
             # Go through pairs of row with positive and negative

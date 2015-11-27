@@ -4,6 +4,13 @@ type Polytope{T<:Integer}
     bidrays::Matrix{T}
 end
 
+function find_generators{T<:Rational}(A::Matrix{T}, b::Vector{T})
+    mat = [A b]
+    imat = intmat(mat)
+    Aint, bint = imat[:,1:end-1], imat[:,end]
+    find_generators(Aint, bint)
+end
+
 @doc """
 # Description
 Find generators for the polytope
@@ -23,7 +30,7 @@ algorithm on the cone homogenization of the above system.
 function find_generators{T<:Integer}(A::Matrix{T}, b::Vector{T})
     # Create homogenized system
     m, n = size(A)
-    Ab = [[A -b], zeros(T, 1, n+1)]
+    Ab = [[A -b]; zeros(T, 1, n+1)]
     Ab[m+1,n+1] = one(T)
     bid, uni = chernikova_general(Ab)
 

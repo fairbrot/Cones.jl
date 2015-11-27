@@ -4,7 +4,7 @@ num{T<:Rational}(x::Array{T}) = map(y->y.num, x)
 den{T<:Rational}(x::Array{T}) = map(y->y.den, x)
 
 # Transform a rational matrix into an integer matrix by multiplying each row
-intmat{T<:Rational}(A::Matrix{T}) =  mapslices(z->int(z*(lcm(den(z))//gcd(num(z)))), A, 2)
+intmat{T<:Rational}(A::Matrix{T}) =  mapslices(z->round(Int, z*(lcm(den(z))//gcd(num(z)))), A, 2)
 
 function collinear(a::Array{Int}, b::Array{Int})
     length(a) == length(b) || error("Input arrays must have the same dimenisions")
