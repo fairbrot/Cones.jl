@@ -1,4 +1,4 @@
-module cones
+module Cones
 
 VERSION < v"0.4-" && using Docile
 
