@@ -36,7 +36,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     # Initialisation
     m, n = size(A)
     bidray = ChernMat(A)
-    uniray = ChernMat(Array(T, 0, m+n), m, n, 0)
+    uniray = ChernMat(Array{T}(0, m+n), m, n, 0)
 
     #redundant_cons=IntSet()
     
@@ -63,6 +63,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
                 println("Bidirectional ray $(index_non_zero) is unsaturated by constraint $(k)")
             end
             new_uni_ray = sign(bidray.B[index_non_zero, k+n]) * bidray.B[index_non_zero, :]
+            new_uni_ray = reshape(new_uni_ray, 1, length(new_uni_ray))
 
             # Update bidirectional rays
             new_bidray_mat = remove_row(bidray.B, index_non_zero)
@@ -114,7 +115,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
             end;
             
             max_rows = length(pos) + length(nil) + length(pos) * length(neg)
-            new_B = Array(T, max_rows, uniray.m + uniray.n)
+            new_B = Array{T}(max_rows, uniray.m + uniray.n)
 
 
             # Handle case of two rows separately

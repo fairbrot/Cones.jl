@@ -1,6 +1,6 @@
 import Base.length
 
-abstract Cone
+abstract type Cone end
 
 @doc """
 # Description
@@ -41,7 +41,9 @@ type PolyhedralCone{T<:Real} <: Cone
     A::Matrix{T}
     n::Int   # Dimension
     m::Int   # Number of constraints
-    PolyhedralCone(A::Matrix{T}) = new(A, size(A,2), size(A,1))
+    function PolyhedralCone{T}(A::Matrix{T}) where T<: Real
+        new(A, size(A,2), size(A,1))
+    end
 end
 
 PolyhedralCone{T<:Real}(A::Matrix{T}) = PolyhedralCone{T}(A)

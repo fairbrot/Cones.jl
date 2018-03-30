@@ -4,7 +4,7 @@ num{T<:Rational}(x::Array{T}) = map(y->y.num, x)
 den{T<:Rational}(x::Array{T}) = map(y->y.den, x)
 
 # Transform a rational matrix into an integer matrix by multiplying each row
-intmat{T<:Rational}(A::Matrix{T}) =  mapslices(z->round(Int, z*(lcm(den(z))//gcd(num(z)))), A, 2)
+intmat{T<:Rational}(A::Matrix{T}) =  mapslices(z->round.(Int, z*(lcm(den(z))//gcd(num(z)))), A, 2)
 
 function collinear(a::Array{Int}, b::Array{Int})
     length(a) == length(b) || error("Input arrays must have the same dimenisions")
@@ -17,7 +17,7 @@ end
 function norm_cols(A::Matrix{Int})
     norm_A = copy(A)
     for i in 1:size(A,2)
-        if (g = gcd(A[:,i])) > 1; norm_A[:, i] = div(norm_A[:, i], g); end
+        if (g = gcd(A[:,i])) > 1; norm_A[:, i] = div.(norm_A[:, i], g); end
     end
     return norm_A
 end
@@ -68,7 +68,7 @@ end
 # Use a modified version of Gram-Schmitd to orthonalize columns of integer matrix
 function gram_schmidt{T<:Integer}(A::Matrix{T})
     m, n = size(A)
-    B = Array(T, m, n)
+    B = Array{T}(m, n)
     for i in 1:n
         sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:(i-1)]
         prod_sq_norms = prod(sq_norms)
@@ -76,7 +76,10 @@ function gram_schmidt{T<:Integer}(A::Matrix{T})
         for j in 1:(i-1)
             B[:,i] -= div(prod_sq_norms,sq_norms[j]) * dot(A[:,i], B[:,j]) * B[:,j]
         end
-        if (g = gcd(B[:,i])) > 1; B[:, i] = div(B[:, i], g); end
+        g = gcd(B[:,i])
+        if g > 1
+            B[:, i] = div.(B[:, i], g)
+        end
     end
     return B
 end
@@ -88,7 +91,7 @@ end
 function normalise_rays{T<:Integer}(A::Matrix{T}, B::Matrix{T})
     m, n = size(A)
     k = size(B,2) # Size of basis
-    new_rays = Array(T, m, n)
+    new_rays = Array{T}(m, n)
     B = gram_schmidt(B) # must have orthogonal basis for linear subspace
     sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:k]
     prod_sq_norms = prod(sq_norms)
@@ -96,7 +99,10 @@ function normalise_rays{T<:Integer}(A::Matrix{T}, B::Matrix{T})
         new_rays[:,i] = prod_sq_norms * A[:,i]
         for j in 1:k
             new_rays[:,i] -= div(prod_sq_norms,sq_norms[j]) * dot(A[:,i], B[:,j]) * B[:,j]
-            if (g = gcd(new_rays[:,i])) > 1; new_rays[:, i] = div(new_rays[:, i], g); end
+            g = gcd(new_rays[:,i])
+            if g > 1;
+                new_rays[:, i] = div.(new_rays[:, i], g)
+            end
         end
     end
     return new_rays

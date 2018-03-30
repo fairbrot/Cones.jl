@@ -12,7 +12,7 @@ end
 
 function remove_row{T<:Integer}(A::Matrix{T}, k::Int)
     m, n = size(A)
-    B = Array(T, m - 1, n)
+    B = Array{T}(m - 1, n)
     i = 1
     for j in 1:m
         if j != k
@@ -26,7 +26,7 @@ end
 function add_row{T<:Integer}(A::Matrix{T}, a::Matrix{T})
     # Here a is a row vector
     m, n = size(A)
-    B = Array(T, m+1, n)
+    B = Array{T}(m+1, n)
     B[1:m, 1:n] = A
     B[m+1, :] = a
     return B
@@ -63,7 +63,7 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
             return norm_cols(LHS(mat)')
         elseif p == mat.rows
             if verbosity > 0; println("Zero is the unique solution"); end;
-            return Array(T, mat.n, 0)
+            return Array{T}(mat.n, 0)
         end
         
         # Inspect matrix to find the maximum size of the next
@@ -76,7 +76,7 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
         end;
         
         max_rows = length(pos) + length(nil) + length(pos) * length(neg)
-        new_B = Array(T, max_rows, mat.m + mat.n)
+        new_B = Array{T}(max_rows, mat.m + mat.n)
 
 
         # Handle case of two rows separately
@@ -99,7 +99,7 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
                 
         # Add rows with non-negative intersections
         # with leading column to next matrix
-        for (k,i) in enumerate([pos,nil]); new_B[k,:] = mat.B[i,:]; end;
+        for (k,i) in enumerate([pos; nil]); new_B[k,:] = mat.B[i,:]; end;
         new_rows = length(pos) + length(nil)
 
         # Go through pairs of row with positive and negative

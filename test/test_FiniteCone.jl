@@ -7,7 +7,7 @@ test_data_1 = [([-1.0, 3.0], [0.0, 3.0]),
                ([2.0, 0.0], [1.0, 1.0]),
                ([0.25, 1.0], [0.25, 1.0])]
 for (x, proj_x) in test_data_1
-    @test_approx_eq project(cone_1, x) proj_x
+    @test project(cone_1, x) ≈ proj_x
 end
 print("success!\n")
 
@@ -18,7 +18,7 @@ test_data_2 = [([-1.0, 3.0], [0.0, 3.0]),
                ([2.0, 0.0], [1.0, 1.0]),
                ([0.25, 1.0], [0.25, 1.0])]
 for (x, proj_x) in test_data_2
-    @test_approx_eq project(cone_2, x) proj_x
+    @test project(cone_2, x) ≈ proj_x
 end
 print("success!\n")
     
@@ -31,6 +31,6 @@ test_data_3 = [([-1.0, -1.0, 1.0], [0.0, 0.0, 1.0]),
                ([1.0, 2.0, 3.0], [1.5, 1.5, 3.0]),
                ([2.5, 2.5, 6.0], [2.5, 2.5, 6.0])]
 for (x, proj_x) in test_data_3
-    @test_approx_eq project(cone_3, x) proj_x
+    @test project(cone_3, x) ≈ proj_x
 end
 print("success!\n")

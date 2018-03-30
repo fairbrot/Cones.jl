@@ -54,8 +54,8 @@ function find_generators{T<:Integer}(A::Matrix{T}, b::Vector{T})
     
     # Allocate matrices and get points.
     # The vertices of the polytope correspond to the unidirectional rays with non-zero trailing coordinate
-    points = Array(Rational{T}, n, (n_uni - n_zeros_uni))
-    rays = Array(T, n, n_zeros_uni)
+    points = Array{Rational{T}}(n, (n_uni - n_zeros_uni))
+    rays = Array{T}(n, n_zeros_uni)
     p_count = 1
     r_count = 1
     for j in 1:n_uni
@@ -78,10 +78,10 @@ Calculates the minimum and maximum values of
 the projection of the polytope onto
 specified vectors:
 
-  min_{x ∈ P} Tᵢᵗx 
-  max_{x ∈ P} Tᵢᵗx
+  min_{x ∈ P} Tᵢx 
+  max_{x ∈ P} Tᵢx
 
-where Tᵢ are the rows of a matrix T.
+where Tᵢ are the columns of a matrix T.
 # Arguments
 * `P::Polytope{I}`: Polytope to project
 * `T::Matrix{I}`: Matrix onto whose columns we project polytope

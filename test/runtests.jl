@@ -1,4 +1,4 @@
-using cones
+using Cones
 using Base.Test
 
 println("Running test_utils.jl...")
