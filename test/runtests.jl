@@ -1,5 +1,5 @@
 using Cones
-using Base.Test
+using Test
 
 println("Running test_utils.jl...")
 include("test_utils.jl")

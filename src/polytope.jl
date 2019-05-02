@@ -1,17 +1,17 @@
-type Polytope{T<:Integer}
+struct Polytope{T<:Integer}
     points::Matrix{Rational{T}}
     rays::Matrix{T}
     bidrays::Matrix{T}
 end
 
-function find_generators{T<:Rational}(A::Matrix{T}, b::Vector{T})
+function find_generators(A::Matrix{T}, b::Vector{T}) where T<:Rational
     mat = [A b]
     imat = intmat(mat)
     Aint, bint = imat[:,1:end-1], imat[:,end]
     find_generators(Aint, bint)
 end
 
-@doc """
+"""
 # Description
 Find generators for the polytope
   P = { x : Ax ≥ b }
@@ -26,8 +26,8 @@ algorithm on the cone homogenization of the above system.
   `points::Matrix{Rational{T}}`: matrix whose columns correspond extremal points of polytope
   `rays::Matrix{T}`: matrix whose columns correspond to unidirectional rays of polytope
   `bidrays::Matrix{T}`: matrix whose columns correspond to bidirectional rays of polytopes
-""" ->
-function find_generators{T<:Integer}(A::Matrix{T}, b::Vector{T})
+"""
+function find_generators(A::Matrix{T}, b::Vector{T}) where T<:Integer
     # Create homogenized system
     m, n = size(A)
     Ab = [[A -b]; zeros(T, 1, n+1)]
@@ -49,13 +49,13 @@ function find_generators{T<:Integer}(A::Matrix{T}, b::Vector{T})
     # If no unidirectional rays intersect with {x : x[n+1] == 0}
     # then polytope is empty
     if n_zeros_uni == n_uni
-        return Array(Rational{T}, n, 0), Array(T, n, 0), Array(T, n, 0)
+        return Array{Rational{T}}(undef, n, 0), Array{T}(undef, n, 0), Array{T}(undef, n, 0)
     end
     
     # Allocate matrices and get points.
     # The vertices of the polytope correspond to the unidirectional rays with non-zero trailing coordinate
-    points = Array{Rational{T}}(n, (n_uni - n_zeros_uni))
-    rays = Array{T}(n, n_zeros_uni)
+    points = Array{Rational{T}}(undef, n, (n_uni - n_zeros_uni))
+    rays = Array{T}(undef, n, n_zeros_uni)
     p_count = 1
     r_count = 1
     for j in 1:n_uni
@@ -72,7 +72,7 @@ function find_generators{T<:Integer}(A::Matrix{T}, b::Vector{T})
     return points, rays, bidrays
 end
 
-@doc """
+"""
 # Description
 Calculates the minimum and maximum values of
 the projection of the polytope onto
@@ -87,11 +87,11 @@ where Tᵢ are the columns of a matrix T.
 * `T::Matrix{I}`: Matrix onto whose columns we project polytope
 # Returns
 `(mins::Array{Rational{T}}, maxs::Array{Rational{T}})`
-""" ->
-function min_max_projections{I<:Integer}(P::Polytope{I}, T::Matrix{Rational{I}} = eye(Rational{I}, length(P)))
+"""
+function min_max_projections(P::Polytope{S}, T::Matrix{Rational{S}} = Array{Rational{S}}(I, length(P), length(P))) where S<:Integer
     n = size(T, 2)
     n_points, n_rays, n_bidrays = size(P.points, 2), size(P.rays, 2), size(P.bidrays, 2)
-    mins, maxs = fill(typemax(Rational{I}), n), fill(typemin(Rational{I}), n)
+    mins, maxs = fill(typemax(Rational{S}), n), fill(typemin(Rational{S}), n)
     for i in 1:n
         for j in 1:n_points
             tp = dot(T[:,i], P.points[:,j])
@@ -123,4 +123,4 @@ function min_max_projections{I<:Integer}(P::Polytope{I}, T::Matrix{Rational{I}} 
     return mins, maxs
 end
 
-length{T<:Integer}(P::Polytope{T}) = size(P.points, 1)
+length(P::Polytope{T} where T<:Integer) = size(P.points, 1)

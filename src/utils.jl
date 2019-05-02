@@ -1,10 +1,11 @@
-import Base: num, den
-
-num{T<:Rational}(x::Array{T}) = map(y->y.num, x)
-den{T<:Rational}(x::Array{T}) = map(y->y.den, x)
+num(x::Array{<:Rational}) = map(y->y.num, x)
+den(x::Array{<:Rational}) = map(y->y.den, x)
 
 # Transform a rational matrix into an integer matrix by multiplying each row
-intmat{T<:Rational}(A::Matrix{T}) =  mapslices(z->round.(Int, z*(lcm(den(z))//gcd(num(z)))), A, 2)
+function intmat(A::Matrix{<:Rational})
+    func = z -> round.(Int, z*(lcm(den(z))//gcd(num(z))))
+    mapslices(func, A; dims=2)
+end
 
 function collinear(a::Array{Int}, b::Array{Int})
     length(a) == length(b) || error("Input arrays must have the same dimenisions")
@@ -14,7 +15,7 @@ function collinear(a::Array{Int}, b::Array{Int})
 end
 
 # Normalises the columns of a matrix
-function norm_cols(A::Matrix{Int})
+function norm_cols(A::AbstractMatrix{<:Integer})
     norm_A = copy(A)
     for i in 1:size(A,2)
         if (g = gcd(A[:,i])) > 1; norm_A[:, i] = div.(norm_A[:, i], g); end
@@ -23,7 +24,7 @@ function norm_cols(A::Matrix{Int})
 end
 
 # Check matrices are the same up to permuting columns
-function check_columns_same{T}(A::Matrix{T}, B::Matrix{T})
+function check_columns_same(A::Matrix{T}, B::Matrix{T}) where T<:Real
     m,n  = size(A)
     if size(B) != (m,n) return false end
     sA = Set{Array{T, 1}}()
@@ -37,7 +38,7 @@ end
 
 # Check columns of two matrices span same linear subspace
 # It is assumed columns in each matrix are linearly independent
-function check_column_span_same{T<:Real}(A::Matrix{T}, B::Matrix{T})
+function check_column_span_same(A::Matrix{T}, B::Matrix{T}) where T<:Real
     m, n = size(A)
     if size(B) != (m,n) return false end
     rankA = rank(A)
@@ -45,7 +46,7 @@ function check_column_span_same{T<:Real}(A::Matrix{T}, B::Matrix{T})
 end
 
 # Tests whether all elements of vector are zero
-function is_zero{T<:Real}(x::Vector{T})
+function is_zero(x::Vector{T}) where T<:Real
     z = zero(T)
     for xi in x
         if xi != z return false end
@@ -54,7 +55,7 @@ function is_zero{T<:Real}(x::Vector{T})
 end
 
 # Verify columns of input matrix are orthogonal (no zero columns allowed)
-function check_columns_orthogonal{T<:Real}(A::Matrix{T})
+function check_columns_orthogonal(A::Matrix{T}) where T<:Real
     m, n = size(A)
     for i in 1:n
         if is_zero(A[:,i]) return false end
@@ -66,9 +67,9 @@ function check_columns_orthogonal{T<:Real}(A::Matrix{T})
 end
 
 # Use a modified version of Gram-Schmitd to orthonalize columns of integer matrix
-function gram_schmidt{T<:Integer}(A::Matrix{T})
+function gram_schmidt(A::Matrix{T}) where T<:Integer
     m, n = size(A)
-    B = Array{T}(m, n)
+    B = Array{T}(undef, m, n)
     for i in 1:n
         sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:(i-1)]
         prod_sq_norms = prod(sq_norms)
@@ -88,10 +89,10 @@ end
 # Arguments:
 # `A::Matrix{T}`: matrix of rays (each column is a ray)
 # `B::Matrix{T}`: matrix whose columns form a basis of linear subspace
-function normalise_rays{T<:Integer}(A::Matrix{T}, B::Matrix{T})
+function normalise_rays(A::Matrix{T}, B::Matrix{T}) where T<:Integer
     m, n = size(A)
     k = size(B,2) # Size of basis
-    new_rays = Array{T}(m, n)
+    new_rays = Array{T}(undef, m, n)
     B = gram_schmidt(B) # must have orthogonal basis for linear subspace
     sq_norms = T[dot(B[:,j], B[:,j]) for j in 1:k]
     prod_sq_norms = prod(sq_norms)

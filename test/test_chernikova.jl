@@ -28,13 +28,15 @@ A = [[1 1 0];
      [1 1 1];
      [1 1 1];
      [0 1 1]]
-B = eye(Int, 3)
+B = [1 0 0;
+     0 1 0;
+     0 0 1]
 test_chernikova(A,B)
 
 # Empty set example
 println("\tExample 3...")
 A = [-1 -1 -1]
-B = Array{Int}(3, 0)
+B = Array{Int}(undef, 3, 0)
 test_chernikova(A, B)
 
 # Last two examples are broken...
@@ -42,7 +44,7 @@ test_chernikova(A, B)
 # One ray example
 println("\tExample 4...")
 A = [[1 -1]; [-1 1]]
-B = [1 1]'
+B = reshape([1, 1], 2, 1)
 test_chernikova(A, B)
 
 

@@ -14,7 +14,7 @@
 ##     return red_rows
 ## end
 
-@doc """
+"""
 # Description
 Calculates the finite generators of the following cone:
 
@@ -31,12 +31,12 @@ This is solved by the generalised Chernikova algorithm:
 * `birays::Matrix{Integer}`: a matrix whose columns are the bidirectional cone generators
 * `unirays::Matrix{Integer}`: a matrix whose columns are the unidirectional cone generators
 * `redundant_cons::IntSet`: indices of constraints (rows) in input matrix which are redundant
-""" ->
-function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
+"""
+function chernikova_general(A::Matrix{T}, verbosity::Int = 0) where T<:Integer
     # Initialisation
     m, n = size(A)
     bidray = ChernMat(A)
-    uniray = ChernMat(Array{T}(0, m+n), m, n, 0)
+    uniray = ChernMat(Array{T}(undef, 0, m+n), m, n, 0)
 
     #redundant_cons=IntSet()
     
@@ -106,7 +106,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
             ##     if verbosity > 0
             ##         println("Constraint $k violates all bidirectional and unidirectional rays so Cone is zero set")
             ##     end
-            ##     return Array(T, n, 0)
+            ##     return Array{T}(undef, n, 0)
             ## end
 
             if verbosity > 0
@@ -115,7 +115,7 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
             end;
             
             max_rows = length(pos) + length(nil) + length(pos) * length(neg)
-            new_B = Array{T}(max_rows, uniray.m + uniray.n)
+            new_B = Array{T}(undef, max_rows, uniray.m + uniray.n)
 
 
             # Handle case of two rows separately
@@ -170,12 +170,12 @@ function chernikova_general{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
     return norm_cols(LHS(bidray)'), norm_cols(LHS(uniray)')#, redundant_cons
 end
 
-function chernikova_general{T<:Rational}(A::Matrix{T}, verbosity::Int = 0)
+function chernikova_general(A::Matrix{T}, verbosity::Int = 0) where T<:Rational
     Aint = intmat(A)
     chernikova_general(Aint, verbosity)
 end
 
-function remove_redundant_constraints{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
+function remove_redundant_constraints(A::Matrix{T}, verbosity::Int = 0) where T<:Integer
     m,n = size(A)
     uni, bid, red_cons = chernikova_general(A)
     indices = setdiff(1:m, red_cons)

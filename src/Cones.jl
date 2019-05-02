@@ -2,9 +2,12 @@ module Cones
 
 VERSION < v"0.4-" && using Docile
 
+using LinearAlgebra: I, rank, dot
 using MathProgBase, Gurobi
+using Printf: @printf
 
 import Base: length
+
 
 export chernikova, chernikova_general, Cone, FiniteCone, PolyhedralCone, project, Polytope, find_generators, min_max_projections
 

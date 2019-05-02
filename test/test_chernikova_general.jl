@@ -19,13 +19,13 @@ println("\tExample 1...")
 A = [[-1//5 4//5];
      [4//5 -1//5]]
 rays = [[1,4] [4, 1]]
-bidrays = Array{Int}(2, 0)
+bidrays = Array{Int}(undef, 2, 0)
 test_chernikova_general(A, bidrays, rays)
 
 # Hyperplane
 println("\tExample 2...")
 A = [[-1 -1 0]; [1 1 0]]
-rays = Array{Int}(3, 0)
+rays = Array{Int}(undef, 3, 0)
 bidrays = [[1, -1, 0] [0, 0, 1]]
 test_chernikova_general(A, bidrays, rays)
 
@@ -33,13 +33,13 @@ test_chernikova_general(A, bidrays, rays)
 println("\tExample 3...")
 A = [[-3 3 0]; [2 2 0]]
 rays = [[-1, 1, 1] [2, 2, -1]]
-bidrays = [0 0 1]'
+bidrays = reshape([0, 0, 1], 3, 1)
 test_chernikova_general(A, bidrays, rays)
 
 ## function unirays{T<:Integer}(bidrays::Matrix{T}, unirays::Matrix{T})
 ##     d, n1 = size(bidrays)
 ##     n2 = size(unirays, 2)
-##     rays = Array(T, d, 2*n1 + n2)
+##     rays = Array{T}(undef, d, 2*n1 + n2)
 ##     for i in 1:n1
 ##         rays[:, 2*i - 1] = bidrays[:,i]
 ##         rays[:, 2*i] = -bidrays[:,i]

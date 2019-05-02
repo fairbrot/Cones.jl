@@ -1,18 +1,20 @@
-type ChernMat{T<:Integer}
+
+
+mutable struct ChernMat{T<:Integer}
     B::Matrix{T}
     m::Int64     # Number of constraints
     n::Int64     # Dimension
     rows::Int    # Current number of rows
 end
 
-function ChernMat{T<:Integer}(A::Matrix{T})
+function ChernMat(A::Matrix{T}) where T<:Integer
     m, n = size(A)
-    ChernMat([eye(T,n) A'], m, n, n)
+    ChernMat([I A'], m, n, n)
 end
 
-function remove_row{T<:Integer}(A::Matrix{T}, k::Int)
+function remove_row(A::Matrix{T}, k::Int) where T<:Integer
     m, n = size(A)
-    B = Array{T}(m - 1, n)
+    B = Array{T}(undef, m - 1, n)
     i = 1
     for j in 1:m
         if j != k
@@ -23,10 +25,10 @@ function remove_row{T<:Integer}(A::Matrix{T}, k::Int)
     return B
 end
 
-function add_row{T<:Integer}(A::Matrix{T}, a::Matrix{T})
+function add_row(A::Matrix{T}, a::Matrix{T}) where T<:Integer
     # Here a is a row vector
     m, n = size(A)
-    B = Array{T}(m+1, n)
+    B = Array{T}(undef, m+1, n)
     B[1:m, 1:n] = A
     B[m+1, :] = a
     return B
@@ -48,7 +50,7 @@ end
 
 
 
-function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
+function chernikova(mat::ChernMat{T}, verbosity::Int = 0) where T<:Integer
     m, n = mat.m, mat.n
     counter = 1
     while true
@@ -63,7 +65,7 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
             return norm_cols(LHS(mat)')
         elseif p == mat.rows
             if verbosity > 0; println("Zero is the unique solution"); end;
-            return Array{T}(mat.n, 0)
+            return Array{T}(undef, mat.n, 0)
         end
         
         # Inspect matrix to find the maximum size of the next
@@ -76,7 +78,7 @@ function chernikova{T<:Integer}(mat::ChernMat{T}, verbosity::Int = 0)
         end;
         
         max_rows = length(pos) + length(nil) + length(pos) * length(neg)
-        new_B = Array{T}(max_rows, mat.m + mat.n)
+        new_B = Array{T}(undef, max_rows, mat.m + mat.n)
 
 
         # Handle case of two rows separately
@@ -143,17 +145,17 @@ by N.V. Chernikova (1964)
 # Returns
 * `rays::Matrix{Integer}`: a matrix whose columns are the required cone generators
 """ ->
-function chernikova{T<:Integer}(A::Matrix{T}, verbosity::Int = 0)
+function chernikova(A::Matrix{T}, verbosity::Int = 0) where T<:Integer
     mat = ChernMat(A)
     chernikova(mat, verbosity)
 end
     
-function chernikova{T<:Rational}(A::Matrix{T}, verbosity::Int = 0)
+function chernikova(A::Matrix{T}, verbosity::Int = 0) where T<:Rational
     C = intmat(A)
     chernikova(C, verbosity)
 end
 
-function leading_col{T<:Integer}(mat::ChernMat{T})
+function leading_col(mat::ChernMat{T}) where T<:Integer
     p = mat.rows
     I = 0
     for i in mat.n+1:mat.n+mat.m
@@ -169,7 +171,7 @@ end
 
 LHS(mat::ChernMat) = mat.B[:, 1:mat.n]
 
-function get_pos_neg_indices{T<:Integer}(mat::ChernMat{T}, col::Int64)
+function get_pos_neg_indices(mat::ChernMat{T}, col::Int64) where T<:Integer
     pos, nil, neg = Int[],Int[],Int[]
     for k in 1:mat.rows
         if mat.B[k,col] > 0.0; push!(pos, k)
@@ -179,7 +181,7 @@ function get_pos_neg_indices{T<:Integer}(mat::ChernMat{T}, col::Int64)
     pos, nil, neg
 end
     
-function combinable{T<:Integer}(mat::ChernMat{T}, i1::Int64, i2::Int64, verbosity::Int = 0)
+function combinable(mat::ChernMat{T}, i1::Int64, i2::Int64, verbosity::Int = 0) where T<:Integer
     # Find all columns for which the rows have a common zero
     # LHS
     zero_cols = Int[]
@@ -222,18 +224,18 @@ function combinable{T<:Integer}(mat::ChernMat{T}, i1::Int64, i2::Int64, verbosit
     return true
 end
 
-function combine{T<:Integer}(mat::Matrix{T}, col::Int, i1::Int, i2::Int)
-    a, b = 1.0, -mat[i1,col]/mat[i2,col]
-    return a*mat[i1,:] + b*mat[i2,:]
-end
+# function combine(mat::Matrix{T}, col::Int, i1::Int, i2::Int) where T<:Integer
+#     a, b = 1.0, -mat[i1,col]/mat[i2,col]
+#     return a*mat[i1,:] + b*mat[i2,:]
+# end
 
-function combine{T<:Integer}(mat::Matrix{T}, col::Int, i1::Int, i2::Int)
+function combine(mat::Matrix{T}, col::Int, i1::Int, i2::Int) where T<:Integer
     t = gcd(mat[i1, col], mat[i2, col])
     a1, a2 = div(mat[i1, col],t), div(mat[i2, col],t)
     return a1 * mat[i2,:] - a2 * mat[i1,:] 
 end
 
-function combine{T<:Integer}(col::Int, vec1::Vector{T}, vec2::Vector{T})
+function combine(col::Int, vec1::Vector{T}, vec2::Vector{T}) where T<:Integer
     t = gcd(vec1[col], vec2[col])
     a1, a2 = div(vec1[col],t), div(vec2[col],t)
     return a1 * vec2 - a2 * vec1
