@@ -1,0 +1,12 @@
+name = "Cones"
+uuid = "1f8e2c57-a612-5c5a-a7df-c0bd456342db"
+
+[deps]
+Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
+MathProgBase = "fdba3010-5040-5b88-9595-932c9decdf73"
+
+[extras]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+
+[compat]
+julia = "1.0"
