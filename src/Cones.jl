@@ -1,7 +1,5 @@
 module Cones
 
-VERSION < v"0.4-" && using Docile
-
 using LinearAlgebra: I, rank, dot
 using MathProgBase, Gurobi
 using Printf: @printf
