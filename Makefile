@@ -32,10 +32,10 @@ bin/libScenGen.a: $(LIB_OBJ)
 	ar rv $@ $?
 
 bin/%.o: %.c %.h
-	gcc -c $< $(C_FLAGS) $(INC_DIR) -o $@
+	gcc -c $< $(C_FLAGS) $(INC_DIR) $(LIB) -o $@
 
 bin/%.o: %.c
-	gcc -c $< $(C_FLAGS) $(INC_DIR) -o $@
+	gcc -c $< $(C_FLAGS) $(INC_DIR) $(LIB) -o $@
 
 ###########
 ## Tests ##
