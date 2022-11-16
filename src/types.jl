@@ -53,11 +53,16 @@ function PolyhedralCone(A::Matrix{T}, check=false) where T<:Integer
     PolyhedralCone{T}(A)
 end
 
-function project(cone::PolyhedralCone, p::Vector{Float64})
-    res = quadprog(-2.0*p, 2.0*Array{Float64}(I, cone.n, cone.n), cone.A,  '>',
-                   zeros(cone.m), fill(-Inf,cone.n), fill(Inf, cone.n),
-                   GurobiSolver(OutputFlag=0, Threads=6))
-    return res.sol
+function project(cone::PolyhedralCone, p::Vector{Float64}; optimizer=Gurobi.Optimizer)
+    n = length(p)
+    model = Model(optimizer)
+    set_silent(model)
+    @variable(model, x[1:n])
+    @constraint(model, cone.A * x .>= 0)
+    @objective(model, Min, sum(x[i]*x[i] - 2*p[i]*x[i] for i in 1:n))
+    optimize!(model)
+    @assert termination_status(model) == MOI.OPTIMAL
+    return value.(x)
 end
 
 # Dimension of ambient space

@@ -1,7 +1,8 @@
 module Cones
 
 using LinearAlgebra: I, rank, dot
-using MathProgBase, Gurobi
+using JuMP
+using Gurobi
 using Printf: @printf
 
 import Base: length
