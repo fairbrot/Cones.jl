@@ -1,4 +1,4 @@
-import Base.length
+import Base.length, Base.∈
 
 abstract type Cone end
 
@@ -22,6 +22,24 @@ end
 function project(cone::FiniteCone, p::Vector{Float64})
     w,z = lcp_solve(cone.AtA, -cone.A'p)
     cone.A * z
+end
+
+function ∈(p::Vector{Float64}, cone::FiniteCone; optimizer=Gurobi.Optimizer)
+    n = length(p)
+    m = cone.num_gen
+    model = Model(optimizer)
+    set_silent(model)
+    @variable(model, λ[1:m] ≥ 0)
+    @constraint(model, [i=1:n], sum(cone.A[i,j]*λ[j] for j in 1:m) == p[i])
+    optimize!(model)
+    stat = termination_status(model)
+    if stat == MOI.OPTIMAL
+        return true
+    elseif stat == MOI.INFEASIBLE
+        return false
+    else
+        throw(ErrorException("Optimization status should be optimal or infeasible"))
+    end
 end
 
 # Dimension of ambient space
@@ -53,7 +71,7 @@ function PolyhedralCone(A::Matrix{T}, check=false) where T<:Integer
     PolyhedralCone{T}(A)
 end
 
-function project(cone::PolyhedralCone, p::Vector{Float64}; optimizer=Gurobi.Optimizer)
+function project(cone::PolyhedralCone, p::Vector{Float64}; optimizer=Gurobi.Optimizer) 
     n = length(p)
     model = Model(optimizer)
     set_silent(model)
