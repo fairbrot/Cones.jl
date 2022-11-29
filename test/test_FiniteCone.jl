@@ -1,4 +1,6 @@
 # Tests whether points project correctly
+using Test
+using Cones
 
 print("\tTest 1 - #generators == dim == 2...")
 cone_1 = FiniteCone([[0.0, 1.0] [1.0, 1.0]])
@@ -34,3 +36,12 @@ for (x, proj_x) in test_data_3
     @test project(cone_3, x) ≈ proj_x
 end
 print("success!\n")
+
+print("\tTest membership # generations = 3, dim = 3")
+cone_4 = FiniteCone([[1.0, 1.0, 0.0] [1.0, 0.0, 1.0] [0.0, 1.0, 1.0]])
+test_data_4 = [([1.0, 1.0, 0.0], true),
+                ([1.0, 1.0, 1.0], true),
+                ([1.0, 0.0, 0.0], false)]
+for (x, res) in test_data_4
+    @test (x ∈ cone_4) == res
+end
