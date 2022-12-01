@@ -46,3 +46,15 @@ end
         @test (x ∈ cone_4) == res
     end
 end
+
+@testset "FiniteCone - dual - 2D" begin
+    K1 = FiniteCone([[1, 2] [2, 1]]) # Polyhedral form is (y <= 2x, y >= (1/2)x )
+    K2 = Cones.dual(K1) # (y >= -2x, 2y >= -x)
+    pts = [[1,1], [-1,2], [2,-1]] # Points in dual cone
+    for i in 1:10
+        c = K1.A*rand(2) # random point in original cone
+        @test c'pts[1] >= 0
+        @test c'pts[2] >= 0
+        @test c'pts[3] >= 0
+    end
+end

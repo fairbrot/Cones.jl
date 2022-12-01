@@ -45,6 +45,8 @@ end
 # Dimension of ambient space
 length(cone::FiniteCone) = size(cone.A, 1)
 
+dual(K::FiniteCone) = PolyhedralCone(collect(K.A'))
+
 """
 # Description
 Type representing a Polyhedra cone. This is the
@@ -53,7 +55,7 @@ intersection of a finite collection of half-spaces
 {x : aᵢ x ≥ 0 ∀ i} = { x: Ax ≥ 0 }
 
 # Arguments
-`A::Matrix{Float64}`: Constraint matrix of polyhedral cone
+`A::Matrix{T<:Real}`: Constraint matrix of polyhedral cone
 """
 struct PolyhedralCone{T<:Real} <: Cone
     A::Matrix{T}
@@ -63,6 +65,8 @@ struct PolyhedralCone{T<:Real} <: Cone
         return new{T}(A, size(A,2), size(A,1))
     end
 end
+
+PolyhedralCone(A::Matrix{Float64}) = PolyhedralCone{Float64}(A)
 
 function PolyhedralCone(A::Matrix{T}, check=false) where T<:Integer
     if check
