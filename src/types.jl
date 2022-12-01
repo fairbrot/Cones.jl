@@ -14,7 +14,7 @@ hull of a finite collection of vectors a₁, … , aₙ:
 """
 struct FiniteCone <: Cone
     A::Matrix{Float64}    # Matrix where each column is a cone generator
-    AtA::Matrix{Float64}  # Cross-product of cone generator matrix
+    AtA::Matrix{Float64}  # Cross-product of cone generator matrix - needed for projection
     num_gen::Int64
     FiniteCone(A::Matrix{T}) where T<:Real = new(float(A), float(A'A), size(A,2))
 end
@@ -24,7 +24,7 @@ function project(cone::FiniteCone, p::Vector{Float64})
     cone.A * z
 end
 
-function ∈(p::Vector{Float64}, cone::FiniteCone; optimizer=Gurobi.Optimizer)
+function ∈(p::Vector{T}, cone::FiniteCone; optimizer=Gurobi.Optimizer) where T<:Real
     n = length(p)
     m = cone.num_gen
     model = Model(optimizer)
@@ -70,6 +70,8 @@ function PolyhedralCone(A::Matrix{T}, check=false) where T<:Integer
     end
     PolyhedralCone{T}(A)
 end
+
+∈(p::Vector{T}, cone::PolyhedralCone) where T <: Real = all(cone.A*p .>= 0.0)
 
 function project(cone::PolyhedralCone, p::Vector{Float64}; optimizer=Gurobi.Optimizer) 
     n = length(p)
