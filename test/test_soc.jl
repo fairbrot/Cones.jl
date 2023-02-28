@@ -1,5 +1,6 @@
-using LinearAlgebra: dot
+using LinearAlgebra: dot, I
 using Cones
+using Cones: SOCone, GeneralSOCone
 using Test
 
 @testset "SOCone membership" begin
@@ -42,4 +43,27 @@ end
         t = q .- 1e-3 
         @test dot(p, t) < 0.0
     end
+end
+
+@testset "GeneralSOCone membership - standard SOCone" begin
+    K1 = GeneralSOCone([1, 0, 0], 1.0)
+    @test [1.0, 0.0, 0.0] ∈ K1
+    @test [0.0, 1.0, 0.0] ∉ K1
+
+    K2 = GeneralSOCone([1.0/sqrt(2), -1.0/sqrt(2)], 1.0) # SOCone rotated 45 degrees clockwise
+    @test [0.0, 1.0] ∉ K2 # not in original and not transformed
+    @test [1.0, 0.0] ∈ K2 # in original and transformed
+    @test [0.0, -1.0] ∈ K2 # not in original but in transformed
+    @test [1.0, 1.0] ∉ K2 # in original but not in transformed
+end
+
+
+@testset "TransformedCone membership" begin
+    C = SOCone(2, 1.0)
+    U = (I/sqrt(2)) * [[1.0, -1] [1, 1]]
+    K = TransformedCone(C, U) # SOCone rotated 90 degrees clockwise
+    @test [0.0, 1.0] ∉ K # not in original and not transformed
+    @test [1.0, 0.0] ∈ K # in original and transformed
+    @test [0.0, -1.0] ∈ K # not in original but in transformed
+    @test [1.0, 1.0] ∉ K # in original but not in transformed
 end

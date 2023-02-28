@@ -8,7 +8,7 @@ using Printf: @printf
 import Base: length
 
 
-export chernikova, chernikova_general, Cone, FiniteCone, PolyhedralCone, project, Polytope, find_generators, min_max_projections, SOCone, TransformedCone
+export chernikova, chernikova_general, Cone, FiniteCone, PolyhedralCone, project, Polytope, find_generators, min_max_projections, SOCone, TransformedCone, GeneralSOCone
 
 # package code goes here
 include("utils.jl")

@@ -1,5 +1,5 @@
 import Base: ∈
-using LinearAlgebra: norm
+using LinearAlgebra: norm, dot
 
 
 """
@@ -36,5 +36,23 @@ function move_to_boundary(p::Vector{T}, cone::SOCone) where {T<:Real}
     return c
 end
 
+struct GeneralSOCone
+    u::Vector{Float64} # cone axis
+    α::Float64
+    function GeneralSOCone(u::Vector{T}, α::Real) where {T<:Real} 
+        @assert norm(u) ≈ 1.0 
+        return new(u, α)
+    end
+end
 
+length(cone::GeneralSOCone) = length(cone.α)
+
+
+function ∈(p::Vector{T}, cone::GeneralSOCone) where {T<:Real}
+    a = dot(p, cone.u)
+    proj = p - a*cone.u
+    return a+sqrt(eps()) >= cone.α*norm(proj)
+end
+
+dual(cone::GeneralSOCone) = GeneralSOCone(u, 1/cone.α)
 
