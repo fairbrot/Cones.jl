@@ -54,5 +54,5 @@ function ∈(p::Vector{T}, cone::GeneralSOCone) where {T<:Real}
     return a+sqrt(eps()) >= cone.α*norm(proj)
 end
 
-dual(cone::GeneralSOCone) = GeneralSOCone(u, 1/cone.α)
+dual(cone::GeneralSOCone) = GeneralSOCone(cone.u, 1/cone.α)
 
