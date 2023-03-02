@@ -36,7 +36,7 @@ function move_to_boundary(p::Vector{T}, cone::SOCone) where {T<:Real}
     return c
 end
 
-struct GeneralSOCone
+struct GeneralSOCone <: Cone
     u::Vector{Float64} # cone axis
     α::Float64
     function GeneralSOCone(u::Vector{T}, α::Real) where {T<:Real} 
